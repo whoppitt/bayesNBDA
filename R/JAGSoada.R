@@ -115,46 +115,59 @@ JAGSoadaData<-function(nbdadata){
     }
   }
 
-
-  randomEffectsLevels<-max(randomEffectdata_allDiffusions)
+  randomEffectsLevels<-max(randomEffectdata_allDiffusions,na.rm=T)
   noEvents<-dim(status_allDiffusions)[1]
 
+  #If there are unequal numbers of individuals in each diffusion then there will be NAs appearing in
+  #the phantom slots for non-existent individuals. We need to replace all these with zeros to avoid errors
+  for(i in 1:dim(stMetric_allDiffusions)[3]) stMetric_allDiffusions[,,i][is.na(availabilityToLearn_allDiffusions)]<-0
+  for(i in 1:dim(asocILVdata_allDiffusions)[3]) asocILVdata_allDiffusions[,,i][is.na(availabilityToLearn_allDiffusions)]<-0
+  for(i in 1:dim(intILVdata_allDiffusions)[3]) intILVdata_allDiffusions[,,i][is.na(availabilityToLearn_allDiffusions)]<-0
+  for(i in 1:dim(multiILVdata_allDiffusions)[3]) multiILVdata_allDiffusions[,,i][is.na(availabilityToLearn_allDiffusions)]<-0
+  for(i in 1:dim(randomEffectdata_allDiffusions)[3]) randomEffectdata_allDiffusions[,,i][is.na(availabilityToLearn_allDiffusions)]<-0
+  for(i in 1:dim(offsetMatrix_allDiffusions)[3]) offsetMatrix_allDiffusions[,,i][is.na(availabilityToLearn_allDiffusions)]<-0
+  status_allDiffusions[is.na(availabilityToLearn_allDiffusions)]<-0
+  availabilityToLearn_allDiffusions[is.na(availabilityToLearn_allDiffusions)]<-0
+  #Since the availabilityToLearn=0 for all these slots, the data is ignored when fitting the model
 
-  imputedAsocILVs<-which(apply(is.na(asocILVdata_allDiffusions),3,sum)>0)
-  if(length(imputedAsocILVs)>0){
-    imputationAsocILVs<-matrix(0,nrow=randomEffectsLevels+1,ncol=length(imputedAsocILVs))
-    for(i in 2:(randomEffectsLevels+1)){
-      for(j in 1:length(imputedAsocILVs)){
-        imputationAsocILVs[i,j]<-asocILVdata_allDiffusions[1,i,imputedAsocILVs[j]]
+
+    imputedAsocILVs<-which(apply(is.na(asocILVdata_allDiffusions),3,sum)>0)
+    if(length(imputedAsocILVs)>0){
+      imputationAsocILVs<-matrix(0,nrow=randomEffectsLevels+1,ncol=length(imputedAsocILVs))
+      for(i in 2:(randomEffectsLevels+1)){
+        for(j in 1:length(imputedAsocILVs)){
+          imputationAsocILVs[i,j]<-asocILVdata_allDiffusions[1,i,imputedAsocILVs[j]]
+        }
       }
-    }
-    dimnames(imputationAsocILVs)[[2]]<-nbdadata[[1]]@int_ilv[imputedAsocILVs]
-  }else{imputationAsocILVs<-NULL}
+      dimnames(imputationAsocILVs)[[2]]<-nbdadata[[1]]@int_ilv[imputedAsocILVs]
+    }else{imputationAsocILVs<-NULL}
 
 
-  imputedIntILVs<-which(apply(is.na(intILVdata_allDiffusions),3,sum)>0)
-  if(length(imputedIntILVs)>0){
-    imputationIntILVs<-matrix(0,nrow=randomEffectsLevels+1,ncol=length(imputedIntILVs))
-    for(i in 2:(randomEffectsLevels+1)){
-      for(j in 1:length(imputedIntILVs)){
-        imputationIntILVs[i,j]<-intILVdata_allDiffusions[1,i,imputedIntILVs[j]]
+    imputedIntILVs<-which(apply(is.na(intILVdata_allDiffusions),3,sum)>0)
+    if(length(imputedIntILVs)>0){
+      imputationIntILVs<-matrix(0,nrow=randomEffectsLevels+1,ncol=length(imputedIntILVs))
+      for(i in 2:(randomEffectsLevels+1)){
+        for(j in 1:length(imputedIntILVs)){
+          imputationIntILVs[i,j]<-intILVdata_allDiffusions[1,i,imputedIntILVs[j]]
+        }
       }
-    }
-    dimnames(imputationIntILVs)[[2]]<-nbdadata[[1]]@int_ilv[imputedIntILVs]
-  }else{imputationIntILVs<-NULL}
+      dimnames(imputationIntILVs)[[2]]<-nbdadata[[1]]@int_ilv[imputedIntILVs]
+    }else{imputationIntILVs<-NULL}
 
-  imputedMultiILVs<-which(apply(is.na(multiILVdata_allDiffusions),3,sum)>0)
-  if(length(imputedMultiILVs)>0){
-    imputationMultiILVs<-matrix(0,nrow=randomEffectsLevels+1,ncol=length(imputedMultiILVs))
-    for(i in 2:(randomEffectsLevels+1)){
-      for(j in 1:length(imputedMultiILVs)){
-        imputationMultiILVs[i,j]<-multiILVdata_allDiffusions[1,i,imputedMultiILVs[j]]
+    imputedMultiILVs<-which(apply(is.na(multiILVdata_allDiffusions),3,sum)>0)
+    if(length(imputedMultiILVs)>0){
+      imputationMultiILVs<-matrix(0,nrow=randomEffectsLevels+1,ncol=length(imputedMultiILVs))
+      for(i in 2:(randomEffectsLevels+1)){
+        for(j in 1:length(imputedMultiILVs)){
+          imputationMultiILVs[i,j]<-multiILVdata_allDiffusions[1,i,imputedMultiILVs[j]]
+        }
       }
-    }
-    dimnames(imputationMultiILVs)[[2]]<-nbdadata[[1]]@int_ilv[imputedMultiILVs]
-  }else{imputationMultiILVs<-NULL}
+      dimnames(imputationMultiILVs)[[2]]<-nbdadata[[1]]@int_ilv[imputedMultiILVs]
+    }else{imputationMultiILVs<-NULL}
 
-  imputationILVs<-cbind(imputationAsocILVs,imputationIntILVs,imputationMultiILVs)
+    imputationILVs<-cbind(imputationAsocILVs,imputationIntILVs,imputationMultiILVs)
+
+
 
   if(is.null(imputationILVs)){
     oada_jagsData<-list(
@@ -206,7 +219,7 @@ JAGSoadaData<-function(nbdadata){
 
 }
 
-JAGSoadaModel<-function(JAGSoadaDataIn,modelFileName,upperS=1000, asocPriorVar=1000, intPriorVar=10000, multiPriorVar=10000, REhyperPriorUpper=10){
+JAGSoadaModel<-function(JAGSoadaDataIn,modelFileName,randomModel=T,upperS=1000, asocPriorVar=1000, intPriorVar=10000, multiPriorVar=10000, REhyperPriorUpper=10){
 
   noSParams<-JAGSoadaDataIn$noSParams
   noAsocParams<-JAGSoadaDataIn$noAsocParams
@@ -240,19 +253,23 @@ JAGSoadaModel<-function(JAGSoadaDataIn,modelFileName,upperS=1000, asocPriorVar=1
     multiPriors<-paste("\n\tbetaMulti[",1:noMultiParams,"]~dnorm(0,",1/multiPriorVar,")",sep="")
     multiLP<-paste("+betaMulti[",1:noMultiParams,"]*asocILVdata[j,k,",1:noMultiParams,"]",sep="",collapse = "")
   }
-  if(noRandomEffects==0){
+  if(noRandomEffects==0|!randomModel){
     REPriors<-NULL
     sampleRandomEffects<-paste("\n\tre[1,j]<-0",sep="")
     multiLP_RE<-NULL
+    #This just fills in a couple of entries for the random effects which is not used in the model anyway
+    RElevelNumber="2"
   }else{
     REPriors<-paste(paste("\n\tsigma[",1:noRandomEffects,"]~dunif(0,",REhyperPriorUpper,")",sep=""),
                     paste("\n\ttau[",1:noRandomEffects,"]<-1/(sigma[",1:noRandomEffects,"]*sigma[",1:noRandomEffects,"])",sep=""))
+    sampleRandomEffectsFirst<-paste("\n\tre[",1:noRandomEffects,",1]<-0",sep="")
     sampleRandomEffects<-paste("\n\tre[",1:noRandomEffects,",j]~dnorm(0,tau[",1:noRandomEffects,"])",sep="")
     multiLP_RE<-paste("+re[",1:noRandomEffects,",(randomEffectdata[j,k,",1:noRandomEffects,"]+1)]",sep="",collapse = "")
+    RElevelNumber="(randomEffectsLevels+1)"
   }
 
   if(noMultiParams==0&noRandomEffects==0){
-    multiLP<-"0"
+    multiLP<-"+0"
   }else{
     multiLP<-paste(multiLP,multiLP_RE,sep="",collapse = "")
   }
@@ -276,9 +293,9 @@ model{
     #Multiplicative ILVs (asocial effect = social effect)",multiPriors,"
 
     #Random effects", REPriors,"
-
-    re[1,1]<-0
-    for(j in 2:(randomEffectsLevels+1)){",sampleRandomEffects,"
+    ", sampleRandomEffectsFirst,
+      "
+    for(j in 2:",RElevelNumber,"){",sampleRandomEffects,"
     }
 
 
@@ -331,6 +348,7 @@ model{
   sink()
 }
 
+#Needs updating to include changes above
 JAGSoadaModel_priors<-function(JAGSoadaDataIn,modelFileName,upperS=1000, asocPriorVar=1000, intPriorVar=10000, multiPriorVar=10000, REhyperPriorUpper=10){
 
   noSParams<-JAGSoadaDataIn$noSParams
@@ -372,6 +390,7 @@ JAGSoadaModel_priors<-function(JAGSoadaDataIn,modelFileName,upperS=1000, asocPri
   }else{
     REPriors<-paste(paste("\n\tsigma[",1:noRandomEffects,"]~dunif(0,",REhyperPriorUpper,")",sep=""),
                     paste("\n\ttau[",1:noRandomEffects,"]<-1/(sigma[",1:noRandomEffects,"]*sigma[",1:noRandomEffects,"])",sep=""))
+    sampleRandomEffectsFirst<-paste("\n\tre[",1:noRandomEffects,",1]<-0)",sep="")
     sampleRandomEffects<-paste("\n\tre[",1:noRandomEffects,",j]~dnorm(0,tau[",1:noRandomEffects,"])",sep="")
     multiLP_RE<-paste("+re[",1:noRandomEffects,",(randomEffectdata[j,k,",1:noRandomEffects,"]+1)]",sep="",collapse = "")
   }
@@ -402,7 +421,8 @@ model{
 
     #Random effects", REPriors,"
 
-    re[1,1]<-0
+    ", sampleRandomEffectsFirst,
+    "
     for(j in 2:(randomEffectsLevels+1)){",sampleRandomEffects,"
     }
 

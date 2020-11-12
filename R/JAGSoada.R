@@ -255,6 +255,7 @@ JAGSoadaModel<-function(JAGSoadaDataIn,modelFileName,randomModel=T,upperS=1000, 
   }
   if(noRandomEffects==0|!randomModel){
     REPriors<-NULL
+    sampleRandomEffectsFirst<-NULL
     sampleRandomEffects<-paste("\n\tre[1,j]<-0",sep="")
     multiLP_RE<-NULL
     #This just fills in a couple of entries for the random effects which is not used in the model anyway
@@ -319,8 +320,12 @@ model{
     for(j in 1:noEvents){
       for(k in 1:maxNoInd){
         probs[j,k]<-relativeRate[j,k]/sum(relativeRate[j,1:maxNoInd])
+        #A node used to get WAIC
+        pYgivenThetaTemp[j,k]<-probs[j,k]*status[j,k]
       }
       status[j,1:maxNoInd]~ dmulti(probs[j,1:maxNoInd],1)
+      #A node used to get WAIC (lppd and effective parameters)
+      pYgivenTheta[j]<-sum(pYgivenThetaTemp[j,1:maxNoInd])
     }
 
     #Calculate propST

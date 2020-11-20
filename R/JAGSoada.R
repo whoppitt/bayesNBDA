@@ -329,7 +329,7 @@ model{
     }
 
     #Calculate propST
-    #The log transformations are used here for numerical stability when rates are high, notably when gettting the prior for propST
+    #The log transformations are used here for numerical stability when rates are high, notably when getting the prior for propST
 
     for(j in 1:noEvents){
       for(k in 1:maxNoInd){

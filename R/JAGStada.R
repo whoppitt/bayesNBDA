@@ -242,6 +242,11 @@ model{
 
     totalLogLik<-sum(logLik[1:linesOfData])
 
+    #Add in a node to record pYgivenTheta to enable calculation of WAIC
+    for(j in 1:linesOfData){
+      #A node used to get WAIC (lppd and effective parameters)
+      pYgivenTheta[j]<-exp(logLik[j])
+    }
 
     #Calculate propST
 
